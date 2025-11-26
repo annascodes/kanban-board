@@ -151,7 +151,7 @@ const page = () => {
                         {tasks[col].map(task => (
 
                             <div className="relative my-3">
-                                <div className='px-2 flex justify-end gap-1'>
+                                <div className='pr-10 flex justify-end gap-1'>
                                     <TaskFormModal
                                         key={`${task._id}-updateModal`}
                                         id={`${task._id}-updateModal`}
