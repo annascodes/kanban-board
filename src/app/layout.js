@@ -24,7 +24,9 @@ export default function RootLayout({ children }) {
        
       >
         <Navbar/>
-        {children}
+       <div className="mt-16">
+         {children}
+       </div>
       </body>
     </html>
   );

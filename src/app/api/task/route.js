@@ -5,18 +5,20 @@ import colors from 'colors'
 
 export async function POST(req) {
     const body= await req.json();
-    console.log(` -- api/tak/route.js => post --`.bgWhite)
-    console.log(body)
+    // console.log(` -- api/tak/route.js => post --`.bgWhite)
+    // console.log(body)
 
+    if(!body.title || !body.description || !body.dueDate || body.dueDate === null || body.title.trim()==='', body.description.trim()==='')
+        return NextResponse.json({error: 'Need all fields'},{status: 300})
     await dbConnect();
 
     const newTask = new Task(
         {
             title: body.title,
             description: body.description,
-            column: body.column,
+            column: body.column,//
             dueDate: body.dueDate,
-            priority: body.priority,
+            priority: body.priority, //
             tags: body.tags,
         }
     )

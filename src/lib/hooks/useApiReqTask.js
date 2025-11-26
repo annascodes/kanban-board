@@ -7,7 +7,7 @@ const useApiReqTask = () => {
 
     
     const request = async (url, method = "GET", body = null, taskId = null) => {
-        console.log('task id in req: ', taskId) // this is not showing on console/inbrowers
+        console.log('task id in req: ', taskId)  
         if (taskId){
             console.log('hahahahahahhahaha')
              setLoadingTasks((prev) => ({ ...prev, [taskId]: true }))

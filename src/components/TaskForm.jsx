@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
-export default function TaskForm({ onSubmit }) {
+export default function TaskForm({ onSubmit, prebuilt = null, onUpdate = null }) {
+    const [id, setId] = useState("");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [column, setColumn] = useState("todo");
@@ -21,10 +23,18 @@ export default function TaskForm({ onSubmit }) {
             dueDate: dueDate ? new Date(dueDate).toISOString() : null,
             tags: tags.split(",").map((t) => t.trim()).filter((t) => t),
         };
+        // console.log('before production: ', task)
 
+        if(task.dueDate === null) {
+            // console.log('nonoooooooooooooooooooooooo')
+            toast.error('Due date is missing')
+        }else{
         onSubmit(task);
 
-        
+        }
+
+
+
         setTitle("");
         setDescription("");
         setColumn("todo");
@@ -32,13 +42,49 @@ export default function TaskForm({ onSubmit }) {
         setDueDate("");
         setTags("");
     };
+    useEffect(() => {
+        if (prebuilt) {
+            setId(prebuilt._id || "")
+            setTitle(prebuilt.title || "");
+            setDescription(prebuilt.description || "");
+            setColumn(prebuilt.column || "todo");
+            setPriority(prebuilt.priority || "medium");
+            setDueDate(prebuilt.dueDate ? prebuilt.dueDate.split("T")[0] : "");
+            setTags(prebuilt.tags ? prebuilt.tags.join(", ") : "");
+        }
+    }, [prebuilt]);
 
+    const handleUpdate = () => {
+        const task = {
+            id,
+            title,
+            description,
+            column,
+            priority,
+            dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+            tags: tags.split(",").map((t) => t.trim()).filter((t) => t),
+        };
+        if(task.title.trim()=== '' || task.description.trim()==='')
+        {
+             
+            toast.error('Title or description is invalid')
+        }else{
+             onUpdate(task)
+        }
+       
+    }
     return (
         <div className=" bg-white rounded-lg ">
-            <h2 className="text-xl font-bold mb-4">Add New Task</h2>
+            {/* <pre>
+                {JSON.stringify(prebuilt, null, 10)}
+            </pre> */}
+
+            <h2 className="text-xl font-bold mb-4">
+                {prebuilt ? 'Update Task' : 'Add New Task.'}
+            </h2>
 
             <div className="flex flex-col gap-4" >
-               
+
                 <input
                     type="text"
                     placeholder="Title"
@@ -90,9 +136,16 @@ export default function TaskForm({ onSubmit }) {
                     className="input input-bordered w-full"
                 />
 
-                <button onClick={handleSubmit} className="btn btn-primary mt-2">
-                    Add Task
-                </button>
+                {
+                    prebuilt
+                        ? <button onClick={handleUpdate} className="btn btn-primary mt-2">
+                            Update
+                        </button>
+                        : <button onClick={handleSubmit} className="btn btn-primary mt-2">
+                            Add Task
+                        </button>
+                }
+                <Toaster/>
             </div>
         </div>
     );

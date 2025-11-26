@@ -1,16 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex items-center gap-2 m-5">
-      <button  style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }} className="btn btn-neutral">Neutral</button>
-      <button className="btn btn-primary">Primary</button>
-      <button className="btn btn-secondary">Secondary</button>
-      <button className="btn btn-accent">Accent</button>
-      <button className="btn btn-info">Info</button>
-      <button className="btn btn-success">Success</button>
-      <button className="btn btn-warning">Warning</button>
-      <button className="btn btn-error">Error</button>
+    <div className="h-svh flex justify-center items-center ">
+      <div>
+        <h1 className="text-5xl font-extrabold tracking-wider">Kanban.</h1>
+        <button className="btn btn-outline btn-neutral text-xs tracking-widest">
+          <Link href={'/tasks'}>My tasks</Link>
+        </button>
+      </div>
+
     </div>
   );
 }

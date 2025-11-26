@@ -11,6 +11,8 @@ export async function PUT(req, { params }) {
 
   const body = await req.json();
 
+ 
+
   await dbConnect();
 
   try {
@@ -35,5 +37,29 @@ export async function PUT(req, { params }) {
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
+  }
+}
+
+
+export async function DELETE(req, { params }) {
+  const { taskId } = await params;
+
+  if (!taskId) {
+    return NextResponse.json({ error: "Task ID is required" }, { status: 400 });
+  }
+
+  await dbConnect();
+
+  try {
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    if (!deletedTask) {
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Task deleted successfully", task: deletedTask }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Failed to delete task" }, { status: 500 });
   }
 }

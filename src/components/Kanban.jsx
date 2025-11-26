@@ -29,9 +29,9 @@ export default function Kanban() {
 
         setColumns((prev) => {
             const { task, fromColumn } = draggedTask;
-            console.log('fromColumn:', fromColumn)
+            // console.log('fromColumn:', fromColumn)
 
-            console.log('toColumn:', toColumn)
+            // console.log('toColumn:', toColumn)
             if (fromColumn === toColumn) return prev;
             const updatedFrom = prev[fromColumn].filter((t) => t.id !== task.id);
             const updatedTo = [task, ...prev[toColumn]];

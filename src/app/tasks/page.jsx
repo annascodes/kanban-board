@@ -1,4 +1,5 @@
 'use client'
+import DeleteModal from '@/components/DeleteModal'
 import Kanban from '@/components/Kanban'
 import TaskCard from '@/components/TaskCard'
 import TaskFormModal from '@/components/TaskFormModal'
@@ -21,6 +22,56 @@ const page = () => {
             setTasks(data)
         }
     }, [data])
+
+
+    const handleTasksAfterUpdatingTask = (updTask) => {
+        setTasks((prev) => {
+            // find which column the task was originally in
+            const oldColumn = Object.keys(prev).find(col =>
+                prev[col].some(t => t._id === updTask._id)
+            );
+
+            // remove task from old column
+            const updatedOldColumn = prev[oldColumn].filter(t => t._id !== updTask._id);
+
+            // add/update task in new column
+            const updatedNewColumn = [
+                updTask,
+                ...prev[updTask.column].filter(t => t._id !== updTask._id)
+            ];
+
+            return {
+                ...prev,
+                [oldColumn]: updatedOldColumn,
+                [updTask.column]: updatedNewColumn
+            };
+        });
+    };
+    const handleTasksAfterDeletingTask = (deletedTaskId) => {
+        setTasks((prev) => {
+            // Find which column contains the deleted task
+            const column = Object.keys(prev).find(col =>
+                prev[col].some(t => t._id === deletedTaskId)
+            );
+
+            if (!column) return prev; // safety check
+
+            return {
+                ...prev,
+                [column]: prev[column].filter(t => t._id !== deletedTaskId)
+            };
+        });
+    };
+    const handleTasksAfterAddingNewTask = (newTask) => {
+        setTasks((prev) => {
+            // Add the new task to the correct column
+            return {
+                ...prev,
+                [newTask.column]: [newTask, ...prev[newTask.column]]
+            };
+        });
+    };
+
 
 
 
@@ -48,23 +99,38 @@ const page = () => {
                 [toColumn]: updatedTo,
             };
         });
-        taskReq(`/api/task/${draggedTask.task._id}`, "PUT", { column: toColumn }, draggedTask.task._id);
+        const { task, fromColumn } = draggedTask;
+        
+        if (fromColumn !== toColumn) {
+            taskReq(`/api/task/${task._id}`, "PUT", { column: toColumn }, task._id)
+                .then((updatedTask) => {
+                    if (updatedTask) {
+                     
+                        handleTasksAfterUpdatingTask(updatedTask);
+                    }
+                });
+        }
+
+
+
         draggedTaskRef.current = null;
     };
-    // -------------
-    console.log('loadingTasks:', loadingTasks)
+
     return (
         <div className='p-4'>
 
             <div className='flex justify-end '>
-                <TaskFormModal />
+                <TaskFormModal handleTasksAfterAddingNewTask={handleTasksAfterAddingNewTask} />
             </div>
 
             {
                 loading && <span className='loading loading-dots'></span>
             }
 
-            <div className='grid grid-cols-3 gap-2 my-5'>
+            <div
+                // className='flex items-center justify-center flex-wrapmy-5'
+                className='grid grid-cols-3 gap-2 my-5'
+            >
                 {tasks && Object.keys(tasks).map(col => (
                     <div
                         key={col}
@@ -83,11 +149,16 @@ const page = () => {
                             text-center font-extrabold text-5xl mb-3`}>{col.toUpperCase()}</h1>
 
                         {tasks[col].map(task => (
-                             
+
                             <div className="relative my-3">
-                               <div className='px-2 flex justify-end'>
-                                 <TaskFormModal prebuilt={task} />
-                               </div>
+                                <div className='px-2 flex justify-end gap-1'>
+                                    <TaskFormModal
+                                        key={`${task._id}-updateModal`}
+                                        id={`${task._id}-updateModal`}
+                                        handleTasksAfterUpdatingTask={handleTasksAfterUpdatingTask}
+                                        prebuilt={task} />
+                                    <DeleteModal key={`${task._id}-deletemodal`} task={task} handleTasksAfterDeletingTask={handleTasksAfterDeletingTask} />
+                                </div>
                                 <div
                                     key={task._id}
                                     draggable={!loadingTasks?.[task._id]}
@@ -103,11 +174,11 @@ const page = () => {
                     </div>
                 ))}
             </div>
-            <pre className='text-xs tracking-widest'>
+            {/* <pre className='text-xs tracking-widest'>
                 {JSON.stringify(tasks, null, 10)}
             </pre>
 
-            <Kanban />
+            <Kanban /> */}
         </div>
     )
 }
